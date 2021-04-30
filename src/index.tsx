@@ -1,15 +1,17 @@
 import { useMemo, useReducer } from "react";
 
 export const DEFAULT_ACTIONS = ['ready', 'loading', 'error', 'success'] as const;
+export type DefaultActionsType = typeof DEFAULT_ACTIONS;
 
-type UseStatusReturn<T extends readonly string[]> = [
+export type UseStatusReturn<T extends readonly string[]> = [
     Record<ActiveValue<T>, boolean>,
     Record<ActionTriggerName<T>, () => void>
 ];
+
 /***
  * Actions: are different verbs to describe a state the flow is in (Success/Failed/ect)
  */
-export default function useStatusBest<T extends readonly string[] = typeof DEFAULT_ACTIONS>(
+export default function useStatusHook<T extends readonly string[] = typeof DEFAULT_ACTIONS>(
     defaultActiveAction?: StatusGuard<T> | undefined | null,
     options?: T
 ): UseStatusReturn<T> {
@@ -40,9 +42,6 @@ type ActionTriggerName<T extends readonly string[]> = T extends DefaultActionsTy
 type ActiveValue<T extends readonly string[]> = T extends DefaultActionsType
     ? `is${Capitalize<typeof DEFAULT_ACTIONS[number]>}`
     : `is${Capitalize<T[number]>}`
-
-
-type DefaultActionsType = typeof DEFAULT_ACTIONS;
 
 type StatusGuard<T extends readonly string[]> = T extends DefaultActionsType
     ? DefaultActionsType[number]

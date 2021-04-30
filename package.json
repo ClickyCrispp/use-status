@@ -1,6 +1,6 @@
 {
-  "name": "use-status",
-  "version": "1.0.0",
+  "name": "use-status-hook",
+  "version": "1.0.3",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
