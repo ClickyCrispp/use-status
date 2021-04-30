@@ -2,22 +2,17 @@ import { useMemo, useReducer } from "react";
 
 export const DEFAULT_ACTIONS = ['ready', 'loading', 'error', 'success'] as const;
 
-type UseStatusReturn<T extends ArrayType> = [
-    Record<ActiveValue<IsActiveGuard<T>>, boolean>,
-    Record<ActionTriggerName<IsActiveGuard<T>>, () => void>
+type UseStatusReturn<T extends readonly string[]> = [
+    Record<ActiveValue<T>, boolean>,
+    Record<ActionTriggerName<T>, () => void>
 ];
-
-type DefaultActionNames = DefaultActionsType[number];
-
-type ArrayType = readonly DefaultActionNames[] | readonly string[]
-
 /***
  * Actions: are different verbs to describe a state the flow is in (Success/Failed/ect)
  */
-export default function useStatusBest<T extends ArrayType>(
+export default function useStatusBest<T extends readonly string[] = typeof DEFAULT_ACTIONS>(
     defaultActiveAction?: StatusGuard<T> | undefined | null,
     options?: T
-): UseStatusReturn<T | DefaultActionNames[]> {
+): UseStatusReturn<T> {
     const [status, dispatch] = useReducer(statusReducer, defaultActiveAction, undefined);
     const optionStatusNames = options || DEFAULT_ACTIONS;
 
@@ -38,30 +33,20 @@ export default function useStatusBest<T extends ArrayType>(
     }, [status]);
 }
 
-// const run = () => {
-//     const [state, setter] = useStatusBest('loading', [...DEFAULT_ACTIONS, 'cat']);
-//     const [state1, setter2] = useStatusBest();
+type ActionTriggerName<T extends readonly string[]> = T extends DefaultActionsType
+    ? `on${Capitalize<typeof DEFAULT_ACTIONS[number]>}`
+    : `on${Capitalize<T[number]>}`
 
-//     state1.isReady
-//     setter2.onReady
+type ActiveValue<T extends readonly string[]> = T extends DefaultActionsType
+    ? `is${Capitalize<typeof DEFAULT_ACTIONS[number]>}`
+    : `is${Capitalize<T[number]>}`
 
-//     state.isCat
-//     setter.onCat
-// }
-
-// Typings
-type ActiveValue<T extends ArrayType> = `is${Capitalize<T[number]>}`;
-type ActionTriggerName<T extends ArrayType> = `on${Capitalize<T[number]>}`;
 
 type DefaultActionsType = typeof DEFAULT_ACTIONS;
 
-type StatusGuard<T extends ArrayType> = T extends DefaultActionsType[]
-    ? DefaultActionsType | T[number]
+type StatusGuard<T extends readonly string[]> = T extends DefaultActionsType
+    ? DefaultActionsType[number]
     : T[number];
-
-type IsActiveGuard<T extends ArrayType> = T extends DefaultActionsType[]
-    ? Array<DefaultActionsType | T[number]>
-    : Array<T[number]>;
 
 type Action<T> = { type: 'update-status', data: T }
 
